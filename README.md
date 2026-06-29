@@ -42,6 +42,30 @@ Code that constructs `Libp2pModuleImpl` directly (examples, tests) passes
 
 ---
 
+# Running a node via logoscore
+
+The module can be driven directly from `logoscore` without any other module. A
+default node is created when the module is loaded; `createNode` then rebuilds it
+from a call-time config (same schema as `LIBP2P_MODULE_CONFIG`, so `@config.json`
+expands to the file's contents), and `getNodeInfo` reads back node details:
+
+```bash
+logoscore load-module libp2p_module
+logoscore call libp2p_module createNode @config.json   # optional; reconfigures the node
+logoscore call libp2p_module start
+logoscore call libp2p_module getNodeInfo Version        # module version
+logoscore call libp2p_module getNodeInfo MyBoundPorts   # bound ports, e.g. [9000]
+logoscore call libp2p_module getNodeInfo PeerId         # this node's peer id
+logoscore call libp2p_module getNodeInfo Multiaddrs     # full bound multiaddrs
+```
+
+`createNode` is optional: if you set `LIBP2P_MODULE_CONFIG` before loading, the
+node is already configured and you can `start` straight away. Calling
+`createNode` tears down the existing node and builds a fresh one from the supplied
+config, so issue it before `start`.
+
+---
+
 # Building
 Currently the recommended and supported building way is using Nix
 

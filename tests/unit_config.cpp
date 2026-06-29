@@ -212,3 +212,26 @@ LOGOS_TEST(options_designated_init) {
     LOGOS_ASSERT_EQ(opts.transport, LIBP2P_TRANSPORT_TCP);
     LOGOS_ASSERT_FALSE(opts.autonat);
 }
+
+LOGOS_TEST(from_json_valid_overlays_and_sets_ok) {
+    bool ok = false;
+    auto opts = Libp2pModuleOptions::fromJson(
+        R"({"addrs": ["/ip4/0.0.0.0/tcp/9000"], "transport": "quic"})", ok);
+    LOGOS_ASSERT_TRUE(ok);
+    LOGOS_ASSERT_EQ(opts.addrs.size(), 1u);
+    LOGOS_ASSERT_TRUE(opts.addrs[0] == "/ip4/0.0.0.0/tcp/9000");
+    LOGOS_ASSERT_EQ(opts.transport, LIBP2P_TRANSPORT_QUIC);
+}
+
+LOGOS_TEST(from_json_invalid_json_clears_ok) {
+    bool ok = true;
+    auto opts = Libp2pModuleOptions::fromJson("{not valid json", ok);
+    LOGOS_ASSERT_FALSE(ok);
+    LOGOS_ASSERT_TRUE(opts.addrs.empty());
+}
+
+LOGOS_TEST(from_json_wrong_field_type_clears_ok) {
+    bool ok = true;
+    auto opts = Libp2pModuleOptions::fromJson(R"({"maxConnections": "nope"})", ok);
+    LOGOS_ASSERT_FALSE(ok);
+}
